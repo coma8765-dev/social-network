@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: "../"
+      dockerfile: "templates/Dockerfile"
+    depends_on:
+      - "api-pg"
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: 0
+
+      JWT_SECRET: "NdwDdPLFFVWHp5GqUs87"
+
+      POSTGRES_DATABASE: "dev"
+      POSTGRES_HOST: "api-pg"
+      POSTGRES_USER: "dev"
+      POSTGRES_PASSWORD: "gjhCTizggEdrJq7fUDmB"
+  api-pg:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "dev"
+      POSTGRES_PASSWORD: "gjhCTizggEdrJq7fUDmB"
+      PGDATA: "/var/postgresql/data/"
+    volumes:
+      - /tmp/social-network:/var/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dev -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 2s
